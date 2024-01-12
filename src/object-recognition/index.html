@@ -3,9 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="./object-recognition.ts"></script>
+    <script type="module" src="./object-recognition.ts"></script>
     <link rel="stylesheet" href="../style.css" />
-    <title>Nested Route</title>
+    <title>Object Recognition</title>
   </head>
   <body>
     <div class="header">
@@ -13,5 +13,24 @@
       <a href="/">Go Back</a>
     </div>
     <hr />
+    <h2>Multiple object detection using pre trained model in TensorFlow.js</h2>
+
+    <p>
+      Wait for the model to load before clicking the button to enable the webcam
+      - at which point it will become visible to use.
+    </p>
+
+    <section id="demos" class="invisible">
+      <p>
+        Hold some objects up close to your webcam to get a real-time
+        classification! When ready click "enable webcam" below and accept access
+        to the webcam when the browser asks (check the top left of your window)
+      </p>
+
+      <div id="liveView" class="camView">
+        <button id="webcamButton">Enable Webcam</button>
+        <video id="webcam" autoplay muted width="640" height="480"></video>
+      </div>
+    </section>
   </body>
 </html>
