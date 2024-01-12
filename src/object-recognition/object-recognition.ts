@@ -1,3 +1,8 @@
 import "./object-recognition.css";
 
-console.log("Hello from nested.ts!");
+const video = document.getElementById("webcam") as HTMLVideoElement;
+const liveView = document.getElementById("liveView") as HTMLDivElement;
+const demosSection = document.getElementById("demos") as HTMLElement;
+const enableWebcamButton = document.getElementById(
+  "webcamButton"
+) as HTMLButtonElement;
