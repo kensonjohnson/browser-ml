@@ -1,3 +1,6 @@
 import "./style.css";
+import { fixGHPagesUrls } from "../utils/gh-pages-urls";
 
-console.log("Hello from index.ts!");
+if (!import.meta.env.DEV) {
+  fixGHPagesUrls();
+}

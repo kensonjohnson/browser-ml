@@ -1,6 +1,11 @@
 import "./object-recognition.css";
 import "@tensorflow/tfjs";
 import * as cocoSsd from "@tensorflow-models/coco-ssd";
+import { fixGHPagesUrls } from "../../utils/gh-pages-urls";
+
+if (!import.meta.env.DEV) {
+  fixGHPagesUrls();
+}
 
 const video = document.getElementById("webcam") as HTMLVideoElement;
 const liveView = document.getElementById("liveView") as HTMLDivElement;
