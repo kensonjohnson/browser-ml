@@ -1,6 +1,6 @@
 import "./object-recognition.css";
 import "@tensorflow/tfjs";
-import * as cocoSsd from "@tensorflow-models/coco-ssd";
+import { load, ObjectDetection } from "@tensorflow-models/coco-ssd";
 
 // This is only for GitHub Pages. Delete this for any other hosting environment.
 import { fixGHPagesUrls } from "../../utils/gh-pages-urls";
@@ -54,12 +54,12 @@ function enableCam(event: MouseEvent) {
 }
 
 // Store the resulting model in the global scope of our app.
-var model: cocoSsd.ObjectDetection;
+var model: ObjectDetection;
 
 // Before we can use COCO-SSD class we must wait for it to finish
 // loading. Machine Learning models can be large and take a moment
 // to get everything needed to run.
-cocoSsd.load().then(function (loadedModel) {
+load().then(function (loadedModel) {
   model = loadedModel;
   // Show demo section now model is ready to use.
   demosSection.classList.remove("invisible");
