@@ -1,8 +1,9 @@
 import "./object-recognition.css";
 import "@tensorflow/tfjs";
 import * as cocoSsd from "@tensorflow-models/coco-ssd";
-import { fixGHPagesUrls } from "../../utils/gh-pages-urls";
 
+// This is only for GitHub Pages. Delete this for any other hosting environment.
+import { fixGHPagesUrls } from "../../utils/gh-pages-urls";
 if (!import.meta.env.DEV) {
   fixGHPagesUrls();
 }
