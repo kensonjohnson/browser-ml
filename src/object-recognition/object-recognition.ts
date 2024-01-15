@@ -47,7 +47,7 @@ function enableCam(event: MouseEvent) {
   };
 
   // Activate the webcam stream.
-  navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
+  navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
     video.srcObject = stream;
     video.addEventListener("loadeddata", predictWebcam);
   });
@@ -59,7 +59,7 @@ var model: ObjectDetection;
 // Before we can use COCO-SSD class we must wait for it to finish
 // loading. Machine Learning models can be large and take a moment
 // to get everything needed to run.
-load().then(function (loadedModel) {
+load().then((loadedModel) => {
   model = loadedModel;
   // Show demo section now model is ready to use.
   demosSection.classList.remove("invisible");
@@ -69,12 +69,12 @@ var children: HTMLElement[] = [];
 
 function predictWebcam() {
   // Now let's start classifying a frame in the stream.
-  model.detect(video).then(function (predictions) {
+  model.detect(video).then((predictions) => {
     // Remove any highlighting we did previous frame.
     for (let i = 0; i < children.length; i++) {
       liveView.removeChild(children[i]);
     }
-    children.splice(0);
+    children.length = 0;
 
     // Now lets loop through predictions and draw them to the live view if
     // they have a high confidence score.
