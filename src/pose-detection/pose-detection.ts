@@ -1,14 +1,14 @@
 import "@tensorflow/tfjs";
 import * as tf from "@tensorflow/tfjs-core";
 import { load as loadCoco } from "@tensorflow-models/coco-ssd";
-import type { ObjectDetection } from "@tensorflow-models/coco-ssd";
-import * as poseDetection from "@tensorflow-models/pose-detection";
+import {
+  SupportedModels,
+  createDetector,
+} from "@tensorflow-models/pose-detection";
 
 await tf.ready();
-const cocoSsd: ObjectDetection = await loadCoco();
-const detector = await poseDetection.createDetector(
-  poseDetection.SupportedModels.MoveNet
-);
+const cocoSsd = await loadCoco();
+const poseDetector = await createDetector(SupportedModels.MoveNet);
 
 async function handleSubmit(event: SubmitEvent) {
   event.preventDefault();
@@ -41,36 +41,6 @@ async function handlePredictions(image: HTMLImageElement) {
       predictions[0].bbox.map((x) => Math.round(x))
     );
   }
-
-  //   // convert image to tensor 4d
-  //   const tensor = tf.browser.fromPixels(image);
-
-  //   const tensor4d = tensor.expandDims(0) as Tensor4D;
-
-  //   const normalizedX1 = predictions[0].bbox[0] / image.width;
-  //   const normalizedY1 = predictions[0].bbox[1] / image.height;
-  //   const normalizedX2 = predictions[0].bbox[2] / image.width;
-  //   const normalizedY2 = predictions[0].bbox[3] / image.height;
-  //   //   crop image to bounding box
-  //   const croppedTensor4d = tf.image.cropAndResize(
-  //     tensor4d,
-  //     [[normalizedY1, normalizedX1, normalizedY2, normalizedX2]],
-  //     [0],
-  //     [192, 192]
-  //   );
-
-  //   const croppedTensor = croppedTensor4d.squeeze([0]).cast("int32") as Tensor3D;
-
-  //   // convert tensor back to image and render to screen using a canvas
-  //   const canvas = document.createElement("canvas");
-  //   canvas.width = 192;
-  //   canvas.height = 192;
-
-  //   const ctx = canvas.getContext("2d");
-  //   if (!ctx) return;
-  //   const croppedImage = await tf.browser.toPixels(croppedTensor);
-  //   ctx.putImageData(new ImageData(croppedImage, 192, 192), 0, 0);
-  //   document.querySelector("body")?.appendChild(canvas);
 }
 
 async function detectPose(image: HTMLImageElement, box: number[]) {
@@ -85,6 +55,10 @@ async function detectPose(image: HTMLImageElement, box: number[]) {
       startingX = 0;
       width = image.width;
       height = image.width;
+      if (height + startingY > image.height) {
+        startingY = 0;
+        height = image.height;
+      }
     } else {
       startingX -= padding;
       width += padding * 2;
@@ -93,7 +67,12 @@ async function detectPose(image: HTMLImageElement, box: number[]) {
     const padding = (width - height) / 2;
     if (padding > startingY || padding > image.height - box[3]) {
       startingY = 0;
+      height = image.height;
       width = image.height;
+      if (width + startingX > image.width) {
+        startingX = 0;
+        width = image.width;
+      }
     } else {
       startingY -= padding;
       height += padding * 2;
@@ -105,6 +84,7 @@ async function detectPose(image: HTMLImageElement, box: number[]) {
   // define crop details
   const cropStartingPoint = [startingY, startingX, 0];
   const cropSize = [height, width, 3];
+  console.log(startingY, height, startingY + height);
   const croppedTensor = tf.slice(imageTensor, cropStartingPoint, cropSize);
 
   // resize cropped image to 192x192
@@ -112,28 +92,48 @@ async function detectPose(image: HTMLImageElement, box: number[]) {
     .resizeBilinear(croppedTensor, [192, 192], true)
     .toInt();
 
-  const [pose] = await detector.estimatePoses(resizedTensor, {
-    maxPoses: 1,
-    flipHorizontal: false,
+  const [{ keypoints, score }] = await poseDetector.estimatePoses(
+    resizedTensor,
+    {
+      maxPoses: 1,
+      flipHorizontal: false,
+    }
+  );
+
+  console.log("Pose: ", keypoints, score);
+
+  // get ratio of resized image to original image
+  const ratioX = width / 192;
+  const ratioY = height / 192;
+
+  // convert keypoints to original image coordinates
+  keypoints.forEach((keypoint) => {
+    keypoint.x = keypoint.x * ratioX + startingX;
+    keypoint.y = keypoint.y * ratioY + startingY;
   });
 
-  console.log("Pose: ", pose);
-
-  // convert tensor back to image and render to screen using a canvas
+  // convert original image to canvas and draw pose on canvas
   const canvas = document.createElement("canvas");
-  canvas.width = 192;
-  canvas.height = 192;
+  canvas.width = image.width;
+  canvas.height = image.height;
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
-  const croppedImage = await tf.browser.toPixels(resizedTensor);
-  ctx.putImageData(new ImageData(croppedImage, 192, 192), 0, 0);
-
-  // draw pose on canvas
-  ctx.beginPath();
-  ctx.arc(pose.keypoints[0].x, pose.keypoints[0].y, 5, 0, 2 * Math.PI);
+  ctx.drawImage(image, 0, 0);
+  ctx.fillStyle = "red";
+  ctx.strokeStyle = "red";
+  ctx.lineWidth = 2;
+  ctx.font = "24px Arial";
+  ctx.fillText("Pose: " + score!.toFixed(2), 10, 24);
+  ctx.fillText("Keypoints: " + keypoints.length, 10, 48);
   ctx.stroke();
-  ctx.closePath();
-
+  // change color to bright green
+  ctx.fillStyle = "rgb(0, 255, 0)";
+  ctx.strokeStyle = "rgb(0, 255, 0)";
+  keypoints.forEach((keypoint) => {
+    ctx.beginPath();
+    ctx.arc(keypoint.x, keypoint.y, 5, 0, 2 * Math.PI);
+    ctx.stroke();
+  });
   document.querySelector("body")?.appendChild(canvas);
 }
 
