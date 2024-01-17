@@ -4,21 +4,27 @@ import type { ObjectDetection } from "@tensorflow-models/coco-ssd";
 
 const cocoSsd: ObjectDetection = await loadCoco();
 
-function handleSubmit(event: SubmitEvent) {
+async function handleSubmit(event: SubmitEvent) {
   event.preventDefault();
   if (!document) return;
   const formData = new FormData(event.target as HTMLFormElement);
   const file = formData.getAll("file")[0] as File;
-
-  const img = new Image();
-  img.src = window.URL.createObjectURL(file);
-  img.onload = handlePredictions.bind(null, img);
+  const image = await createImageFromURL(window.URL.createObjectURL(file));
+  handlePredictions(image);
 }
 
-async function handlePredictions(img: HTMLImageElement) {
-  cocoSsd.detect(img).then((predictions) => {
-    console.log("Predictions: ", predictions);
+function createImageFromURL(url: string) {
+  return new Promise<HTMLImageElement>((resolve, reject) => {
+    const image = new Image();
+    image.src = url;
+    image.onload = () => resolve(image);
+    image.onerror = reject;
   });
+}
+
+async function handlePredictions(image: HTMLImageElement) {
+  const predictions = await cocoSsd.detect(image);
+  console.log("Predictions: ", predictions);
 }
 
 const form = document.createElement("form");
