@@ -5,3 +5,8 @@
   align-items: center;
   justify-content: center;
 }
+
+canvas {
+  max-width: 900px;
+  height: auto;
+}
