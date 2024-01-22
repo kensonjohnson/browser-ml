@@ -14,6 +14,8 @@ export default defineConfig({
   root: join(cwd(), "src"),
   publicDir: join(cwd(), "public"),
   build: {
+    chunkSizeWarningLimit: 2000,
+    target: "esnext",
     outDir: join(cwd(), "build"),
     emptyOutDir: true,
     rollupOptions: {
