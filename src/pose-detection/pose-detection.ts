@@ -7,6 +7,24 @@ import {
   Keypoint,
 } from "@tensorflow-models/pose-detection";
 
+const form = document.createElement("form");
+form.classList.add("pose-image-form");
+const input = document.createElement("input");
+input.setAttribute("type", "file");
+input.setAttribute("id", "file");
+input.setAttribute("name", "file");
+input.setAttribute("accept", "image/*");
+
+const submitButton = document.createElement("button");
+submitButton.setAttribute("type", "submit");
+submitButton.innerText = "Upload Image";
+
+form.appendChild(input);
+form.appendChild(submitButton);
+form.onsubmit = handleSubmit;
+
+document.querySelector("#form-container")?.appendChild(form);
+
 await tf.ready();
 const cocoSsd = await loadCoco();
 const poseDetector = await createDetector(SupportedModels.MoveNet);
@@ -164,21 +182,3 @@ function renderPoses(
   });
   document.querySelector("#result-container")?.appendChild(canvas);
 }
-
-const form = document.createElement("form");
-form.classList.add("pose-image-form");
-const input = document.createElement("input");
-input.setAttribute("type", "file");
-input.setAttribute("id", "file");
-input.setAttribute("name", "file");
-input.setAttribute("accept", "image/*");
-
-const submitButton = document.createElement("button");
-submitButton.setAttribute("type", "submit");
-submitButton.innerText = "Upload Image";
-
-form.appendChild(input);
-form.appendChild(submitButton);
-form.onsubmit = handleSubmit;
-
-document.querySelector("#form-container")?.appendChild(form);
