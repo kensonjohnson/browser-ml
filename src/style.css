@@ -65,6 +65,13 @@ button:focus-visible {
   align-items: center;
 }
 
+.page-links {
+  display: flex;
+  flex-direction: column;
+  list-style-type: none;
+  gap: 0.25em;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;

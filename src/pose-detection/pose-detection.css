@@ -1,0 +1,18 @@
+.pose-image-form {
+  display: flex;
+  gap: 1rem;
+  padding: 2rem;
+  align-items: center;
+  justify-content: center;
+}
+
+#result-container {
+  display: flex;
+  justify-content: space-around;
+}
+
+canvas {
+  width: 50%;
+  max-width: 500px;
+  height: auto;
+}
