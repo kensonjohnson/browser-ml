@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Model Training</title>
+    <link rel="stylesheet" href="../style.css" />
+    <script type="module" src="./training-single-neuron.ts"></script>
+    <link rel="stylesheet" href="./training-single-neuron.css" />
+  </head>
+  <body>
+    <header class="header">
+      <h1>Model Training</h1>
+      <a href="/">Go Back</a>
+    </header>
+    <hr />
+    <div class="container">
+      <p>
+        This example illustrates how to train a simple model with a single unit
+        (neuron) to predict home values given sqaure footage and bedroom count.
+      </p>
+      <p>
+        The model is trained using a simple linear regression algorithm. The
+        model is trained using the following data (2k+ samples):
+      </p>
+      <table id="raw-data-table" class="data-container">
+        <thead>
+          <tr class="table-header">
+            <th>Square Footage</th>
+            <th>Bedroom Count</th>
+            <th>Home Value</th>
+          </tr>
+        </thead>
+      </table>
+      <p>
+        Those values are normalized to be between 0 and 1. Those values look
+        something like this:
+      </p>
+      <table id="normalized-data-table" class="data-container">
+        <thead>
+          <tr class="table-header">
+            <th>Square Footage</th>
+            <th>Bedroom Count</th>
+            <th>Home Value</th>
+          </tr>
+        </thead>
+      </table>
+      <p>
+        (To be clear, the actual values aren't rounded to the nearest hundreth,
+        I did that for brevity) The normalized values are used to train the
+        model. Training the model involves adjusting the weights and biases of
+        the model to minimize the loss function. The loss function is a measure
+        of how well the model is performing. The loss function for training this
+        model is calculated using the mean squared error formula:
+
+        <span class="formula">
+          <code> loss = (1 / n) * Σ (y - y')² </code>
+        </span>
+
+        Where <code>y</code> is the actual value and <code>y'</code> is the
+        predicted value.
+      </p>
+      <p>
+        Using TensorFlowJS, we can create a new model to train, in this case
+        using the <code>tf.sequential()</code> helper:
+      </p>
+      <div>
+        <pre>
+          // Define the model
+          const model = tf.sequential();
+
+          // 1 dense layer with 1 unit (neuron) and input shape of 2
+          model.add(tf.layers.dense({ units: 1, inputShape: [2] }));
+
+          // Train the model
+          train();
+        </pre>
+      </div>
+      <p>The <code>train()</code> function has the following steps:</p>
+      <ol>
+        <li>Compile the model</li>
+        <li>Fit the model</li>
+        <li>Use the model to predict home values</li>
+      </ol>
+      <p>For TFJS, that roughly looks like this:</p>
+      <div>
+        <pre>
+          const learningRate = 0.01;
+
+          // Compile the model with specified learning rate and loss function
+          model.compile({ 
+            &nbsp;&nbsp;optimizer: tf.train.sgd(learningRate),
+            &nbsp;&nbsp;loss: "meanSquaredError",
+          });
+
+          // Fit the model
+          const results = await model.fit(
+            &nbsp;&nbsp;normalizedValues,
+            &nbsp;&nbsp;outputsTensor,
+            &nbsp;&nbsp;{
+            &nbsp;&nbsp;&nbsp;&nbsp;  validationSplit: 0.15,
+            &nbsp;&nbsp;&nbsp;&nbsp;  shuffle: true,
+            &nbsp;&nbsp;&nbsp;&nbsp;  batchSize: 32,
+            &nbsp;&nbsp;&nbsp;&nbsp;  epochs: 50,
+            &nbsp;&nbsp;}
+          );
+
+          // Predict values
+          evaluateModel();
+        </pre>
+      </div>
+      <p>
+        Barring some details, that's the gist of training the model. Callbacks
+        can be passed to the <code>model.fit()</code> method to gather some
+        information about how the training is going. I've setup those callbacks
+        to output into the container below.
+      </p>
+      <button id="train-button">Train</button>
+      <div class="training-output"></div>
+      <p>
+        We now have a trained model! As you can see in the output, we trained
+        for 50 epochs, which means we went through all of the data 50 times!
+        Because there is a lot of training data, we break the data up into
+        batches. I arbitrarily chose a batch size of 32, but many other numbers
+        would work here. With a batch size of 32, the training function will use
+        32 peices of the data, make an adjustment, and do that over again until
+        all of the data is used up. This is one epoch. We do this 50 times to
+        train the model.
+      </p>
+      <p>
+        And now for the fun part: using the model. It's important to keep our
+        inputs within the range that was provided in the training data.
+        Fortunately, this is easy to get with TFJS:
+      </p>
+      <div>
+        <pre>
+          // get the min and max values of the features
+          const minValues = featureResults.minValues.arraySync();
+          const maxValues = featureResults.maxValues.arraySync();
+          console.log(minValues, maxValues);
+        </pre>
+      </div>
+      <p>
+        Looking at the output, we can see that the minimum square footage is
+        432, the maximum is 4,059. The minimum bedroom count is 0, the maximum
+        is 3. Now we now the range of values we can use to predict home values.
+      </p>
+      <form id="evaluation-form">
+        <label for="sqft-input">Square Footage:</label>
+        <input type="number" id="sqft-input" name="sqft" step="1" />
+        <label for="bedrooms-input">Bedroom Count:</label>
+        <input type="number" id="bedrooms-input" name="bedrooms" step="1" />
+        <button type="submit" id="evaluation-submit-button" disabled>
+          Predict
+        </button>
+      </form>
+      <div class="evaluation-output">Waiting for output...</div>
+    </div>
+  </body>
+</html>
