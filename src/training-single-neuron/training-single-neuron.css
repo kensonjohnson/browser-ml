@@ -1,0 +1,114 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  max-width: 1280px;
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.data-container {
+  display: flex;
+  flex-direction: column;
+  height: 20rem;
+  width: fit-content;
+  border: 1px solid #eee;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  gap: 1rem;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #eee;
+  color: black;
+}
+
+.table-body {
+  display: flex;
+  flex-direction: column;
+  overflow: scroll;
+  height: 20rem;
+}
+
+.table-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  gap: 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+.table-row:nth-child(odd) {
+  background-color: darkslategrey;
+  color: black;
+}
+
+pre {
+  background-color: black;
+  border-radius: 0.5rem;
+  /* Get rid of leading whitespace */
+  white-space: pre-line;
+  padding: 1rem;
+  color: orange;
+  font-size: 1rem;
+}
+
+code {
+  background-color: black;
+  color: orange;
+  border-radius: 0.1rem;
+  padding: 0 3px;
+  margin: 0;
+  white-space: pre-line;
+}
+
+#train-button {
+  border-top-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.training-output {
+  display: flex;
+  flex-direction: column;
+  height: 10rem;
+  overflow: scroll;
+  border: 2px solid #1a1a1a;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  background-color: black;
+}
+
+.training-output pre {
+  margin: 0;
+  color: white;
+}
+
+form {
+  display: flex;
+  gap: 1rem;
+  padding: 2px 8px;
+  align-items: center;
+  width: fit-content;
+  margin: 0;
+}
+
+form > button {
+  padding: 2px 8px;
+}
+
+.evaluation-output {
+  display: flex;
+  align-items: center;
+  padding-left: 1rem;
+  height: 2rem;
+  color: white;
+  background-color: black;
+  border-radius: 8px;
+}
